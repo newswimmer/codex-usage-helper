@@ -1,0 +1,32 @@
+# macOS Finder/system files
+.DS_Store
+._*
+
+# Build outputs
+build/
+*.app
+*.dSYM/
+
+# Swift and compiler caches
+.build/
+DerivedData/
+ModuleCache/
+*.swiftmodule
+*.swiftdoc
+*.swiftsourceinfo
+
+# Generated icon artifacts
+*.iconset/
+*.icns
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# Local editor/project settings
+.vscode/
+.idea/
