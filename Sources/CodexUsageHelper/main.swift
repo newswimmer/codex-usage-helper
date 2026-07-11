@@ -4,7 +4,7 @@ import ImageIO
 import Foundation
 import UniformTypeIdentifiers
 
-private let codexExecutable = "/Applications/Codex.app/Contents/Resources/codex"
+private let codexExecutable = "/Applications/ChatGPT.app/Contents/Resources/codex"
 private let fiveHourMinutes = 300
 private let weeklyMinutes = 10_080
 private let autoRefreshIntervalSeconds: TimeInterval = 5 * 60
@@ -43,7 +43,7 @@ enum UsageError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .codexMissing:
-            return "Codex app was not found."
+            return "ChatGPT app was not found."
         case .launchFailed(let message):
             return "Could not start Codex usage service: \(message)"
         case .timedOut:
@@ -107,7 +107,7 @@ final class CodexUsageClient {
                 "clientInfo": [
                     "name": "codex-usage-helper",
                     "title": "Codex Usage Helper",
-                    "version": "0.1.0",
+                    "version": "1.0.1",
                 ],
                 "capabilities": NSNull(),
             ],
@@ -363,7 +363,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let url = URL(string: "codex://settings/usage"), NSWorkspace.shared.open(url) {
             return
         }
-        NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: "/Applications/Codex.app"), configuration: NSWorkspace.OpenConfiguration())
+        NSWorkspace.shared.openApplication(at: URL(fileURLWithPath: "/Applications/ChatGPT.app"), configuration: NSWorkspace.OpenConfiguration())
     }
 
     @objc private func quit() {
@@ -572,34 +572,6 @@ private func printUsageAndExit() {
     RunLoop.main.run()
 }
 
-private func makeIconSet(at path: String) {
-    let outputURL = URL(fileURLWithPath: path)
-    do {
-        try FileManager.default.createDirectory(at: outputURL, withIntermediateDirectories: true)
-        let sizes: [(String, Int)] = [
-            ("icon_16x16.png", 16),
-            ("icon_16x16@2x.png", 32),
-            ("icon_32x32.png", 32),
-            ("icon_32x32@2x.png", 64),
-            ("icon_128x128.png", 128),
-            ("icon_128x128@2x.png", 256),
-            ("icon_256x256.png", 256),
-            ("icon_256x256@2x.png", 512),
-            ("icon_512x512.png", 512),
-            ("icon_512x512@2x.png", 1024),
-        ]
-
-        for (fileName, size) in sizes {
-            let png = try drawAppIconPNG(size: size)
-            try png.write(to: outputURL.appendingPathComponent(fileName), options: .atomic)
-        }
-        exit(0)
-    } catch {
-        fputs("Could not create icon: \(error.localizedDescription)\n", stderr)
-        exit(1)
-    }
-}
-
 private func makeICNS(at path: String) {
     do {
         let entries: [(type: String, size: Int)] = [
@@ -630,18 +602,6 @@ private func makeICNS(at path: String) {
         fputs("Could not create ICNS: \(error.localizedDescription)\n", stderr)
         exit(1)
     }
-}
-
-private func applyFinderIcon(appPath: String, iconPath: String) {
-    guard let image = NSImage(contentsOfFile: iconPath) else {
-        fputs("Could not read icon image at \(iconPath)\n", stderr)
-        exit(1)
-    }
-    if NSWorkspace.shared.setIcon(image, forFile: appPath, options: []) {
-        exit(0)
-    }
-    fputs("Could not apply Finder icon to \(appPath)\n", stderr)
-    exit(1)
 }
 
 private func drawAppIconPNG(size: Int) throws -> Data {
@@ -752,12 +712,8 @@ private func fillRoundedRect(_ context: CGContext, _ rect: CGRect, radius: CGFlo
 
 if CommandLine.arguments.contains("--print-usage") {
     printUsageAndExit()
-} else if let index = CommandLine.arguments.firstIndex(of: "--make-icon"), CommandLine.arguments.count > index + 1 {
-    makeIconSet(at: CommandLine.arguments[index + 1])
 } else if let index = CommandLine.arguments.firstIndex(of: "--make-icns"), CommandLine.arguments.count > index + 1 {
     makeICNS(at: CommandLine.arguments[index + 1])
-} else if let index = CommandLine.arguments.firstIndex(of: "--apply-finder-icon"), CommandLine.arguments.count > index + 2 {
-    applyFinderIcon(appPath: CommandLine.arguments[index + 1], iconPath: CommandLine.arguments[index + 2])
 } else {
     let app = NSApplication.shared
     let delegate = AppDelegate()

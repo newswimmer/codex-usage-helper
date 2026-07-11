@@ -4,8 +4,10 @@
 
 # Build outputs
 build/
+dist/
 *.app
 *.dSYM/
+*.zip
 
 # Swift and compiler caches
 .build/
